@@ -1,0 +1,49 @@
+{% extends "app/templates/base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">What do you want to ask or share?</h2>
+{% for question in questions %}
+<article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <small class="text-muted">Asked by {{ question.author.username }} on {{ question.date_posted|date }}</small>
+        </div>
+        <h2><a class="article-title" href="{% url 'question-detail' question.id %}">{{ question.title }}</a></h2>
+        {% if question.content %}
+        <p class="article-content">{{ question.content|truncatewords:30 }}</p>
+        {% endif %}
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <span class="badge badge-danger">{{ question.answers.count }} Answers</span>
+            </div>
+            <a href="{% url 'question-detail' question.id %}" class="btn btn-sm btn-outline-info">View Question</a>
+        </div>
+    </div>
+</article>
+{% empty %}
+<div class="alert alert-info">No questions yet! Be the first to ask.</div>
+{% endfor %}
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a class="btn btn-outline-danger mb-4" href="?page=1">First</a>
+    <a class="btn btn-outline-danger mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+    {% if page_obj.number == num %}
+    <a class="btn btn-danger mb-4" href="?page={{ num }}">{{ num }}</a>
+    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <a class="btn btn-outline-danger mb-4"
+        href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a class="btn btn-outline-danger mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a class="btn btn-outline-danger mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+        {% endif %}
+</div>
+{% endif %}
+{% endblock content %}

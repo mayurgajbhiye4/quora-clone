@@ -1,0 +1,99 @@
+{% extends "app/templates/base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}{{ question.title }}{% endblock %}
+
+{% block content %}
+<article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <small class="text-muted">Asked by {{ question.author.username }} on {{ question.date_posted|date }}</small>
+        </div>
+        <h2 class="article-title">{{ question.title }}</h2>
+        {% if question.content %}
+        <p class="article-content">{{ question.content }}</p>
+        {% endif %}
+    </div>
+</article>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h4>{{ question.answers.count }} Answers</h4>
+    </div>
+    <div class="card-body">
+        {% for answer in question.answers.all %}
+        <div class="media mb-4" id="answer-{{ answer.id }}">
+            <div class="media-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="mt-0">{{ answer.author.username }}</h5>
+                    <small class="text-muted">{{ answer.date_posted|date:"F d, Y" }}</small>
+                </div>
+                <p>{{ answer.content }}</p>
+                <div class="d-flex align-items-center">
+                    {% if user.is_authenticated %}
+                    <button
+                        class="btn btn-sm {% if user in answer.likes.all %}btn-danger{% else %}btn-outline-danger{% endif %} like-btn"
+                        data-id="{{ answer.id }}">
+                        <i class="far fa-heart"></i> <span class="like-count">{{ answer.likes.count }}</span>
+                    </button>
+                    {% else %}
+                    <span class="text-muted"><i class="far fa-heart"></i> {{ answer.likes.count }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% if not forloop.last %}
+        <hr>{% endif %}
+        {% empty %}
+        <p>No answers yet. Be the first to answer!</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<div class="content-section">
+    <form method="POST" action="{% url 'add-answer' question.id %}">
+        {% csrf_token %}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Your Answer</legend>
+            {{ answer_form|crispy }}
+        </fieldset>
+        <div class="form-group">
+            <button class="btn btn-outline-info" type="submit">Post Answer</button>
+        </div>
+    </form>
+</div>
+{% else %}
+<div class="alert alert-info">
+    Please <a href="{% url 'login' %}">login</a> to post an answer.
+</div>
+{% endif %}
+{% endblock content %}
+
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+        $('.like-btn').click(function () {
+            var answerId = $(this).data('id');
+            var button = $(this);
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "like-toggle" %}',
+                data: {
+                    'id': answerId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                dataType: 'json',
+                success: function (response) {
+                    if (response.liked) {
+                        button.removeClass('btn-outline-danger').addClass('btn-danger');
+                    } else {
+                        button.removeClass('btn-danger').addClass('btn-outline-danger');
+                    }
+                    button.find('.like-count').text(response.total_likes);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
