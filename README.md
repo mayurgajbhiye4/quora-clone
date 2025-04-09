@@ -13,7 +13,7 @@
 
 ## Environment Variables
 
-SECRET_KEY=your_secret_key     
+DJANGO_SECRET_KEY =your_secret_key     
 
 ## Clone the repository
 
