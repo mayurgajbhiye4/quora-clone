@@ -22,7 +22,7 @@ h6 {
 }
 
 .site-header .navbar-nav .nav-link:hover {
-    color: hsl(0, 0%, 0%);
+    color: hsl(0, 5%, 76%);
 }
 
 .site-header .navbar-nav .nav-link.active {
