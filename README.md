@@ -9,7 +9,7 @@
 5. Like answers of other users
 6. Logout/ Signup
 
-![Quora Clone Home Page](/assets/images/quora_clone.png")
+![Quora Clone Home Page](/assets/quora_clone.png")
 
 ## Environment Variables
 
